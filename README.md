@@ -1,5 +1,9 @@
-# selfman
+# Selfman
 
-## contents
+## Contents
 
-1. [idea](doc/idea.md)
+- [idea](doc/idea.md)
+- [design](doc/design/index.md)
+## Quick start 
+
+## Preview
