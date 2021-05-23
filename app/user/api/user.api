@@ -1,0 +1,15 @@
+type (
+	UserReq {
+		Id string `path:"id"`
+	}
+	UserRsp {
+		Id   string `json:"id"`
+		Name string `json:"name"`
+	}
+)
+
+service user {
+	@handler getUser
+	get /api/user/get/:id (UserReq) returns (UserRsp)
+	
+}
