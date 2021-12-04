@@ -23,8 +23,8 @@ type inParams struct {
 }
 
 func BindModuleWithDig(r gin.IRouter, container *dig.Container) (err error) {
-	err = container.Invoke(func(params inParams) {
-		for _, module := range params.Modules {
+	err = container.Invoke(func(param inParams) {
+		for _, module := range param.Modules {
 			module.Init(r)
 		}
 	})

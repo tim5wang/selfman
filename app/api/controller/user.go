@@ -4,12 +4,13 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
+	"github.com/tim5wang/selfman/util"
 )
 
 type UserModule struct {
 }
 
-func NewUserModule() *UserModule {
+func NewUserModule() util.Module {
 	return &UserModule{}
 }
 

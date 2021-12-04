@@ -10,7 +10,6 @@ import (
 
 var (
 	ApiContainer *dig.Container
-	Modules      = dig.Group("controller")
 )
 
 func init() {
@@ -23,10 +22,7 @@ func init() {
 		}
 	}()
 	ApiContainer = dig.New()
-	{
-		err = ApiContainer.Provide(controller.NewUserModule, Modules)
+	{ // controller
+		err = ApiContainer.Provide(controller.NewUserModule, util.ModuleGroup)
 	}
-	ApiContainer.Invoke(func(modules ...util.Module) {
-
-	})
 }
