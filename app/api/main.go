@@ -11,10 +11,8 @@ import (
 
 func main() {
 	s := gin.New()
-	//l := &controller.UserModule{}
 	s.Use(middleware.Log, middleware.Log)
-	//util.BindModule(s, l)
-	err := util.BindModuleWithDig(s, dig.ApiContainer)
+	err := util.BindModuleFromContainer(s, dig.ApiContainer)
 	if err != nil {
 		panic(fmt.Errorf("bind modules error: %w", err))
 	}

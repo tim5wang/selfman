@@ -22,11 +22,44 @@ type inParams struct {
 	Modules []Module `group:"module"`
 }
 
-func BindModuleWithDig(r gin.IRouter, container *dig.Container) (err error) {
+func BindModuleFromContainer(r gin.IRouter, container *dig.Container) (err error) {
 	err = container.Invoke(func(param inParams) {
 		for _, module := range param.Modules {
 			module.Init(r)
 		}
 	})
+	return
+}
+
+type Validation interface {
+	Validate() error
+}
+
+func BindJsonReq(ctx *gin.Context, reqs ...interface{}) (err error) {
+	for _, req := range reqs {
+		err = ctx.BindHeader(req)
+		if err != nil {
+			return
+		}
+		err = ctx.BindUri(req)
+		if err != nil {
+			return
+		}
+		err = ctx.BindQuery(req)
+		if err != nil {
+			return
+		}
+		err = ctx.BindJSON(req)
+		if err != nil {
+			return
+		}
+		v, ok := req.(Validation)
+		if ok {
+			err = v.Validate()
+			if err != nil {
+				return
+			}
+		}
+	}
 	return
 }
