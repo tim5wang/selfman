@@ -10,10 +10,8 @@ import (
 	"github.com/tim5wang/selfman/common/serror"
 )
 
-// Handler can be any type of function.
 type Handler interface{}
 
-// Router is application router
 type Router interface {
 	Group(relativePath string, middlewares ...gin.HandlerFunc) Router
 	Handle(method, path string, handler Handler, middlewares ...gin.HandlerFunc)
@@ -32,7 +30,6 @@ type router struct {
 	rg       *gin.RouterGroup
 }
 
-// Group creates a new router. You should add all the routes that have common middlwares or the same path prefix.
 func (r *router) Group(relativePath string, middlewares ...gin.HandlerFunc) Router {
 	if !strings.HasPrefix(relativePath, "/") {
 		relativePath = "/" + relativePath
@@ -44,53 +41,41 @@ func (r *router) Group(relativePath string, middlewares ...gin.HandlerFunc) Rout
 	}
 }
 
-// Handle registers a new request handle and middleware with the given path and method.
 func (r *router) Handle(method, path string, handler Handler, middlewares ...gin.HandlerFunc) {
-	//addHandlerInfo(method, strings.Replace(r.path+path, "//", "/", -1), handler, middlewares)
-	var chain []gin.HandlerFunc
-	for _, middleware := range middlewares {
-		chain = append(chain, middleware)
-	}
+	chain := make([]gin.HandlerFunc, 0)
+	chain = append(chain, middlewares...)
 	chain = append(chain, r.wraphandler(handler))
 	r.rg.Handle(method, path, chain...)
 }
 
-// GET is a shortcut for router.Handle("GET", path, handler, middlewares...).
 func (r *router) GET(path string, handler Handler, middlewares ...gin.HandlerFunc) {
 	r.Handle("GET", path, handler, middlewares...)
 }
 
-// POST is a shortcut for router.Handle("POST", path, handler, middlewares...).
 func (r *router) POST(path string, handler Handler, middlewares ...gin.HandlerFunc) {
 	r.Handle("POST", path, handler, middlewares...)
 }
 
-// DELETE is a shortcut for router.Handle("DELETE", path, handler, middlewares...).
 func (r *router) DELETE(path string, handler Handler, middlewares ...gin.HandlerFunc) {
 	r.Handle("DELETE", path, handler, middlewares...)
 }
 
-// PATCH is a shortcut for router.Handle("PATCH", path, handler, middlewares...).
 func (r *router) PATCH(path string, handler Handler, middlewares ...gin.HandlerFunc) {
 	r.Handle("PATCH", path, handler, middlewares...)
 }
 
-// PUT is a shortcut for router.Handle("PUT", path, handler, middlewares...).
 func (r *router) PUT(path string, handler Handler, middlewares ...gin.HandlerFunc) {
 	r.Handle("PUT", path, handler, middlewares...)
 }
 
-// OPTIONS is a shortcut for router.Handle("OPTIONS", path, handler, middlewares...).
 func (r *router) OPTIONS(path string, handler Handler, middlewares ...gin.HandlerFunc) {
 	r.Handle("OPTIONS", path, handler, middlewares...)
 }
 
-// HEAD is a shortcut for router.Handle("HEAD", path, handler, middlewares...).
 func (r *router) HEAD(path string, handler Handler, middlewares ...gin.HandlerFunc) {
 	r.Handle("HEAD", path, handler, middlewares...)
 }
 
-// wraphandler turns a normal Handler into a gin-handler compatible
 func (r *router) wraphandler(f Handler) gin.HandlerFunc {
 	return convertHandler(f, r.injector)
 }
@@ -106,10 +91,9 @@ func newReqInstance(t reflect.Type) interface{} {
 	}
 }
 
-type ginwebRequest interface {
+type sRequest interface {
 	Parse(*gin.Context) serror.Error
 	Validate() serror.Error
-	ResponseSchema() (interface{}, string) // only for api doc
 }
 
 func convertHandler(f Handler, parentInjector inject.Injector) gin.HandlerFunc {
@@ -129,9 +113,9 @@ func convertHandler(f Handler, parentInjector inject.Injector) gin.HandlerFunc {
 	//}
 
 	numIn := t.NumIn()
-	requestFields := []int{}
+	requestFields := make([]int, 0)
 	for i := 0; i < numIn; i++ {
-		if t.In(i).Implements(reflect.TypeOf((*ginwebRequest)(nil)).Elem()) {
+		if t.In(i).Implements(reflect.TypeOf((*sRequest)(nil)).Elem()) {
 			requestFields = append(requestFields, i)
 		}
 	}
@@ -152,7 +136,7 @@ func convertHandler(f Handler, parentInjector inject.Injector) gin.HandlerFunc {
 					c.AbortWithStatusJSON(http.StatusBadRequest, &jsonResposneData{ErrCode: err.Code(), ErrMsg: err.Msg()})
 					return
 				}
-				gr := req.(ginwebRequest)
+				gr := req.(sRequest)
 				if err := gr.Parse(c); err != nil && err != serror.Success {
 					c.AbortWithStatusJSON(http.StatusBadRequest, &jsonResposneData{ErrCode: err.Code(), ErrMsg: err.Msg()})
 					return

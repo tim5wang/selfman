@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,17 +28,10 @@ type GetUserByIDReq struct {
 }
 
 func (m *UserModule) GetUserByID(ctx *gin.Context) {
-	//req := &GetUserByIDReq{}
-	//err := util.BindJsonReq(ctx, req)
-	//if err != nil {
-	//	_ = ctx.AbortWithError(1002, errors.New("hello gin !"))
-	//}
-	//ctx.JSON(http.StatusOK, fmt.Sprintf("hello %v, %v", req.ID, req.Name))
-	req := map[string]interface{}{}
+	req := &GetUserByIDReq{}
 	err := util.BindJsonReq(ctx, req)
 	if err != nil {
-		_ = ctx.AbortWithError(http.StatusOK, err)
+		_ = ctx.AbortWithError(1002, errors.New("hello gin !"))
 	}
-
-	ctx.JSON(http.StatusOK, req)
+	ctx.JSON(http.StatusOK, fmt.Sprintf("hello %v, %v", req.ID, req.Name))
 }

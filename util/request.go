@@ -20,11 +20,6 @@ func (r *Request) Validate() serror.Error {
 	return serror.Success
 }
 
-// ResponseSchema describes response schema related to the request.
-func (r *Request) ResponseSchema() (interface{}, string) {
-	return nil, ""
-}
-
 type requestParser struct {
 	req interface{}
 	err error
@@ -37,11 +32,15 @@ func newRequestParser(req interface{}) *requestParser {
 }
 
 func (rp *requestParser) parse(c *gin.Context) serror.Error {
-	rp.err = c.ShouldBind(rp.req)
-	rp.bindContext(c, rp.req)
-	if rp.err != nil {
+	err := BindJsonReq(c, rp.req)
+	if err != nil {
 		return serror.ErrorParseRequest.SetMsg(rp.err.Error())
 	}
+	//rp.err = c.ShouldBind(rp.req)
+	//rp.bindContext(c, rp.req)
+	//if rp.err != nil {
+	//	return serror.ErrorParseRequest.SetMsg(rp.err.Error())
+	//}
 	return nil
 }
 
@@ -67,14 +66,17 @@ func (rp *requestParser) bindContext(c *gin.Context, s interface{}) {
 				v := reflect.ValueOf(newReqInstance(structField.Type()))
 				if v.Elem().Kind() == reflect.Struct {
 					structField.Set(v)
-					rp.bindContext(c, structField.Interface())
+					//rp.bindContext(c, structField.Interface())
+					_ = BindJsonReq(c, structField.Interface())
 					continue
 				}
 			case reflect.Struct:
-				rp.bindContext(c, structField.Addr().Interface())
+				//rp.bindContext(c, structField.Addr().Interface())
+				_ = BindJsonReq(c, structField.Addr().Interface())
 				continue
 			}
 			_ = typeField
+
 			//for _, binder := range ctxbBinders {
 			//	err := binder.Bind(c, &typeField, &structField)
 			//	if err != nil {
