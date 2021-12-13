@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/codegangsta/inject"
 	"github.com/gin-gonic/gin"
 	"github.com/tim5wang/selfman/common/serror"
 )
@@ -25,9 +24,8 @@ type Router interface {
 }
 
 type router struct {
-	path     string
-	injector inject.Injector
-	rg       *gin.RouterGroup
+	path string
+	rg   *gin.RouterGroup
 }
 
 func (r *router) Group(relativePath string, middlewares ...gin.HandlerFunc) Router {
@@ -35,9 +33,8 @@ func (r *router) Group(relativePath string, middlewares ...gin.HandlerFunc) Rout
 		relativePath = "/" + relativePath
 	}
 	return &router{
-		path:     r.path + relativePath,
-		injector: r.injector,
-		rg:       r.rg.Group(relativePath, middlewares...),
+		path: r.path + relativePath,
+		rg:   r.rg.Group(relativePath, middlewares...),
 	}
 }
 
@@ -77,7 +74,7 @@ func (r *router) HEAD(path string, handler Handler, middlewares ...gin.HandlerFu
 }
 
 func (r *router) wraphandler(f Handler) gin.HandlerFunc {
-	return convertHandler(f, r.injector)
+	return convertHandler(f)
 }
 
 func newReqInstance(t reflect.Type) interface{} {
@@ -96,22 +93,11 @@ type sRequest interface {
 	Validate() serror.Error
 }
 
-func convertHandler(f Handler, parentInjector inject.Injector) gin.HandlerFunc {
+func convertHandler(f Handler) gin.HandlerFunc {
 	t := reflect.TypeOf(f)
 	if t.Kind() != reflect.Func {
 		panic("handler should be a function")
 	}
-	//switch t.NumOut() {
-	//case 0:
-	//case 1:
-	//	//outTyp := t.Out(0)
-	//	//if outTyp.Kind() != reflect.String && !outTyp.Implements(reflect.TypeOf((*Response)(nil)).Elem()) {
-	//	//	panic("handler output parameter type should be `string` or `ginweb.Response`")
-	//	//}
-	//default:
-	//	panic("handler output parameter count should be 0 or 1")
-	//}
-
 	numIn := t.NumIn()
 	requestFields := make([]int, 0)
 	for i := 0; i < numIn; i++ {
@@ -123,38 +109,17 @@ func convertHandler(f Handler, parentInjector inject.Injector) gin.HandlerFunc {
 		panic("handler should only have one request")
 	}
 	return func(c *gin.Context) {
-		injector := inject.New()
-		if parentInjector != nil {
-			injector.SetParent(parentInjector)
-		}
-		context := contextPool.Get().(*Context)
-		context.ctx = c
-		for _, field := range requestFields {
+		realParams := make([]reflect.Value, len(requestFields))
+		for i, field := range requestFields {
 			if req := newReqInstance(t.In(field)); req != nil {
-				rp := newRequestParser(req)
-				if err := rp.parse(c); err != nil {
-					c.AbortWithStatusJSON(http.StatusBadRequest, &jsonResposneData{ErrCode: err.Code(), ErrMsg: err.Msg()})
-					return
+				err := BindJsonReq(c, req)
+				if err != nil {
+					panic(err.Error)
 				}
-				gr := req.(sRequest)
-				if err := gr.Parse(c); err != nil && err != serror.Success {
-					c.AbortWithStatusJSON(http.StatusBadRequest, &jsonResposneData{ErrCode: err.Code(), ErrMsg: err.Msg()})
-					return
-				}
-				if err := gr.Validate(); err != nil && err != serror.Success {
-					c.AbortWithStatusJSON(http.StatusBadRequest, &jsonResposneData{ErrCode: err.Code(), ErrMsg: err.Msg()})
-					return
-				}
-				injector.Map(req)
+				realParams[i] = reflect.ValueOf(req)
 			}
 		}
-		injector.Map(context)
-		injector.Map(c)
-		ret, err := injector.Invoke(f)
-		if err != nil {
-			panic(err)
-		}
-
+		ret := reflect.ValueOf(f).Call(realParams)
 		if len(ret) > 0 {
 			i := ret[0].Interface()
 			switch i.(type) {
@@ -169,7 +134,6 @@ func convertHandler(f Handler, parentInjector inject.Injector) gin.HandlerFunc {
 	}
 }
 
-// ConvertHandler converts a ginweb handler to gin handler.
 func ConvertHandler(f Handler) gin.HandlerFunc {
-	return convertHandler(f, nil)
+	return convertHandler(f)
 }
