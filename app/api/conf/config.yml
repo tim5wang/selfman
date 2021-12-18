@@ -1,0 +1,3 @@
+
+gorm:
+  path: ../../data/api.db

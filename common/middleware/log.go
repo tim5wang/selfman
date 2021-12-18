@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var Log = gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+var ConsoleLog = gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
 	// your custom format
 	return fmt.Sprintf("%s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
 		param.ClientIP,
