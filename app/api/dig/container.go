@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/tim5wang/selfman/app/api/controller"
-	"github.com/tim5wang/selfman/util"
+	"github.com/tim5wang/selfman/common/web"
 	"go.uber.org/dig"
 )
 
@@ -23,6 +23,7 @@ func init() {
 	}()
 	ApiContainer = dig.New()
 	{ // controller
-		err = ApiContainer.Provide(controller.NewUserModule, util.ModuleGroup)
+		err = ApiContainer.Provide(controller.NewUserModule, web.ModuleGroup)
+		err = ApiContainer.Provide(controller.NewDocModule, web.ModuleGroup)
 	}
 }

@@ -1,15 +1,17 @@
-package util
+package web
 
 import (
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/dig"
 )
 
 type Module interface {
-	Init(r gin.IRouter)
+	Init(r Router)
 }
 
-func BindModule(r gin.IRouter, handlers ...Module) {
+func BindModule(r Router, handlers ...Module) {
 	for _, h := range handlers {
 		h.Init(r)
 	}
@@ -17,13 +19,13 @@ func BindModule(r gin.IRouter, handlers ...Module) {
 
 var ModuleGroup = dig.Group("module")
 
-type inParams struct {
+type modules struct {
 	dig.In
 	Modules []Module `group:"module"`
 }
 
-func BindModuleFromContainer(r gin.IRouter, container *dig.Container) (err error) {
-	err = container.Invoke(func(param inParams) {
+func BindModuleFromContainer(r Router, container *dig.Container) (err error) {
+	err = container.Invoke(func(param modules) {
 		for _, module := range param.Modules {
 			module.Init(r)
 		}
@@ -49,10 +51,13 @@ func BindJsonReq(ctx *gin.Context, reqs ...interface{}) (err error) {
 		if err != nil {
 			return
 		}
-		err = ctx.BindJSON(req)
-		if err != nil {
-			return
+		if strings.Contains(ctx.GetHeader("application"), "json") {
+			err = ctx.BindJSON(req)
+			if err != nil {
+				return
+			}
 		}
+
 		v, ok := req.(Validation)
 		if ok {
 			err = v.Validate()
