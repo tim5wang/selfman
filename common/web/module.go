@@ -39,6 +39,10 @@ type Validation interface {
 
 func BindJsonReq(ctx *gin.Context, reqs ...interface{}) (err error) {
 	for _, req := range reqs {
+		err = ctx.Bind(req)
+		if err != nil {
+			return
+		}
 		err = ctx.BindHeader(req)
 		if err != nil {
 			return

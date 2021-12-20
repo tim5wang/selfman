@@ -30,7 +30,7 @@ func NewYamlConfig(file string) KVEngine {
 		panic(err)
 	}
 	allConfig := c.viper.AllSettings()
-	util.PrintJSONIndent(allConfig)
+	util.Print(allConfig)
 	return c
 }
 

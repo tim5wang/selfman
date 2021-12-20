@@ -1,3 +1,13 @@
-
 gorm:
-  path: ../../data/api.db
+  sqlite:
+    path: data/api.db
+  mysql:
+    host: 127.0.0.1
+    user: root
+    password: 123456tim
+    database: selfman
+
+gin:
+  static:
+    path: static
+    ftp: true
