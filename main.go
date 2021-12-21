@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tim5wang/selfman/app/api/dig"
@@ -62,7 +63,11 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("bind modules error: %w", err))
 	}
-
+	timer := time.NewTimer(1 * time.Second)
+	go func() {
+		<-timer.C
+		_ = util.Open("http://localhost" + config.GetString("port"))
+	}()
 	err = s.Run(config.GetString("port"))
 	if err != nil {
 		panic(fmt.Errorf("start service error: %w", err))
