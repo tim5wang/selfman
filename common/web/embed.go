@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/tim5wang/selfman/common/util"
 )
 
 func EmbedServer(root fs.FS, prePath, prefix string, excludes ...string) gin.HandlerFunc {
@@ -16,8 +17,7 @@ func EmbedServer(root fs.FS, prePath, prefix string, excludes ...string) gin.Han
 }
 
 func FileServer(fileSystem http.FileSystem, prePath, prefix string, excludes ...string) gin.HandlerFunc {
-	//prePath = strings.TrimRight(prePath, "/")
-	//prefix = strings.TrimRight(prefix, "/")
+	notFoundPage, _ := fileSystem.Open(path.Join(prePath, "404.html"))
 	return func(ctx *gin.Context) {
 		// 排除
 		if ctx.Request.Method != http.MethodGet {
@@ -46,11 +46,14 @@ func FileServer(fileSystem http.FileSystem, prePath, prefix string, excludes ...
 		if strings.TrimRight(filePath, "/") == strings.TrimRight(prePath, "/") {
 			filePath = path.Join(filePath, "index.html")
 		}
-		//util.Print(filePath)
+		util.Print(filePath)
 		//ctx.FileFromFS(filePath, fileSystem) // 自带的有重定向泥潭
 		file, err := fileSystem.Open(filePath)
 		if err != nil {
-			return
+			file = notFoundPage
+			if file == nil {
+				return
+			}
 		}
 		data, err := ioutil.ReadAll(file)
 		if err != nil {

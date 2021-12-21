@@ -9,20 +9,24 @@ import (
 	"github.com/tim5wang/selfman/common/configservice"
 	"github.com/tim5wang/selfman/common/database"
 	"github.com/tim5wang/selfman/common/middleware"
+	"github.com/tim5wang/selfman/common/util"
 	"github.com/tim5wang/selfman/common/web"
 	"github.com/tim5wang/selfman/dao/entity"
 )
 
 var (
 	config *configservice.ConfigService
-
-	//go:embed static/*
+	//go:embed static app/api/conf
 	embedFS embed.FS
 )
 
 func beforeStart() (err error) {
 	err = dig.ApiContainer.Invoke(func(c *configservice.ConfigService) {
 		config = c
+		err = config.FromEmbed(embedFS)
+		if err != nil {
+			panic(err)
+		}
 	})
 	if err != nil {
 		return
@@ -32,7 +36,7 @@ func beforeStart() (err error) {
 			&entity.User{},
 		)
 		if err != nil {
-			return
+			panic(err)
 		}
 	})
 	if err != nil {
@@ -59,7 +63,7 @@ func main() {
 		panic(fmt.Errorf("bind modules error: %w", err))
 	}
 
-	err = s.Run(":8080")
+	err = s.Run(config.GetString("port"))
 	if err != nil {
 		panic(fmt.Errorf("start service error: %w", err))
 	}

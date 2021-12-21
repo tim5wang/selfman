@@ -16,7 +16,7 @@ import (
 
 var (
 	appName  = "selfman-api"
-	confPath = "app/api/conf/"
+	confPath = "./app/api/conf/"
 )
 var (
 	ApiContainer *dig.Container
@@ -55,20 +55,20 @@ func NewApiConfig() *configservice.ConfigService {
 	}
 	if env.Env() == env.Env_dev {
 		options.Engines = append(options.Engines,
-			configservice.NewYamlConfig(confPath+"config-dev.yml"))
+			configservice.NewYamlConfig(confPath, "config-dev", "yaml"))
 	} else {
 		options.Engines = append(options.Engines,
-			configservice.NewYamlConfig(confPath+"config-live.yml"))
+			configservice.NewYamlConfig(confPath, "config-live", "yaml"))
 	}
 	options.Engines = append(options.Engines,
-		configservice.NewYamlConfig(confPath+"config.yml"))
+		configservice.NewYamlConfig(confPath, "config", "yaml"))
 	return configservice.NewConfigService(options)
 }
 
 func NewApiDB(config *configservice.ConfigService) *gorm.DB {
 	file := config.GetString("gorm.sqlite.path")
 	if file == "" {
-		panic("sqlite file not found")
+		panic("sqlite file not config")
 	}
 	return database.CreateSQLite(file)
 }

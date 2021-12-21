@@ -1,6 +1,7 @@
+port: :8082
 gorm:
   sqlite:
-    path: data/api.db
+    path: data.db
   mysql:
     host: 127.0.0.1
     user: root

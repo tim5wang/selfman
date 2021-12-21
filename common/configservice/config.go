@@ -2,6 +2,9 @@ package configservice
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/fs"
+	"path"
 	"strconv"
 	"sync"
 
@@ -13,25 +16,53 @@ type KVEngine interface {
 	GetString(key string) string
 }
 
-type YamlConfig struct {
-	file  string
-	viper *viper.Viper
+type FileConfig interface {
+	SetFS(fs fs.FS) error
 }
 
-func NewYamlConfig(file string) KVEngine {
+type YamlConfig struct {
+	file     string
+	path     string
+	fileType string
+	viper    *viper.Viper
+}
+
+func (y *YamlConfig) fullName() string {
+	return fmt.Sprintf("%s.%s", path.Join(y.path, y.file), y.fileType)
+}
+
+func NewYamlConfig(p, file, fileType string) KVEngine {
 	c := &YamlConfig{
-		file: file,
+		path:     p,
+		file:     file,
+		fileType: fileType,
 	}
 	c.viper = viper.New()
-	c.viper.SetConfigFile(file)
-	c.viper.SetConfigType("yaml")
-	err := c.viper.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
-	allConfig := c.viper.AllSettings()
-	util.Print(allConfig)
+	f := c.fullName()
+	c.viper.SetConfigType(fileType)
+	c.viper.SetConfigName(file)
+	c.viper.SetConfigFile(f)
+	_ = c.viper.ReadInConfig()
+	//allConfig := c.viper.AllSettings()
+	//util.Print(allConfig)
 	return c
+}
+
+func (c *YamlConfig) SetFS(fs fs.FS) error {
+
+	file, err := fs.Open(c.fullName())
+	if err != nil {
+		return err
+	}
+	c.viper.SetConfigName(c.file)
+	c.viper.SetConfigType(c.fileType)
+	err = c.viper.ReadConfig(file)
+	if err != nil {
+		return err
+	}
+	//allConfig := c.viper.AllSettings()
+	//util.Print("allconfig:", allConfig)
+	return nil
 }
 
 func (c *YamlConfig) GetString(key string) (value string) {
@@ -65,6 +96,19 @@ func NewConfigService(op *Options) *ConfigService {
 		config: make(map[string]interface{}),
 	}
 	return c
+}
+
+func (c *ConfigService) FromEmbed(e fs.FS) error {
+	for _, kv := range c.opts.Engines {
+		fileConfig, ok := kv.(FileConfig)
+		if ok {
+			err := fileConfig.SetFS(e)
+			if err != nil {
+				util.Print(err)
+			}
+		}
+	}
+	return nil
 }
 
 func (c *ConfigService) GetString(key string) (value string) {
