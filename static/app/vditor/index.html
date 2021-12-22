@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Marked in the browser</title>
+</head>
+<body>
+<div id="vditor">
+
+</div>
+<!-- ⚠️生产环境请指定版本号，如 https://cdn.jsdelivr.net/npm/vditor@x.x.x/dist... -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vditor/dist/index.css" />
+<script src="https://cdn.jsdelivr.net/npm/vditor/dist/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+<script>
+    new Vditor('vditor', {
+        toolbarConfig: {
+            pin: true
+        },
+        counter: {
+            enable: true
+        },
+        height: window.innerHeight / 2,
+        toolbar: [
+            'emoji',
+            'link',
+            'upload',
+            'edit-mode',
+            {
+                name: 'more',
+                toolbar: [
+                    'insert-after',
+                    'fullscreen',
+                    'preview',
+                    'info',
+                    'help',
+                ],
+            },
+        ],
+    })
+</script>
+</body>
+</html>
+
