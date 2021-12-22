@@ -1,7 +1,7 @@
 package web
 
 import (
-	"net/http"
+	"os"
 	"path"
 	"strings"
 
@@ -12,6 +12,6 @@ func StaticServer(root, prefix string, excludes ...string) gin.HandlerFunc {
 	if !strings.HasPrefix(root, "/") {
 		root = path.Join("./", root)
 	}
-	fileSystem := http.Dir(root)
+	fileSystem := os.DirFS(root)
 	return FileServer(fileSystem, "/", prefix, excludes...)
 }

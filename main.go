@@ -54,7 +54,7 @@ func main() {
 	s := gin.New()
 	s.Use(
 		middleware.ConsoleLog,
-		web.EmbedServer(embedFS, "static/", "/sf"),
+		web.EmbedServer(embedFS, "static/", "/s/"),
 		web.StaticServer(config.GetString("gin.static.path"), "/", "/v1/api"),
 	)
 
