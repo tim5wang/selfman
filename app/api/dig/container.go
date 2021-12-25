@@ -8,7 +8,9 @@ import (
 	"github.com/tim5wang/selfman/common/database"
 	"github.com/tim5wang/selfman/common/env"
 	"github.com/tim5wang/selfman/common/web"
+	"github.com/tim5wang/selfman/dao/filedao"
 	"github.com/tim5wang/selfman/dao/userdao"
+	"github.com/tim5wang/selfman/service/fileservice"
 	"github.com/tim5wang/selfman/service/userservice"
 	"go.uber.org/dig"
 	"gorm.io/gorm"
@@ -43,9 +45,11 @@ func init() {
 	}
 	{ // service
 		err = ApiContainer.Provide(userservice.NewUserService)
+		err = ApiContainer.Provide(fileservice.NewFileService)
 	}
 	{ // dao
 		err = ApiContainer.Provide(userdao.NewUserDao)
+		err = ApiContainer.Provide(filedao.NewFileDao)
 	}
 }
 

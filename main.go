@@ -35,6 +35,8 @@ func beforeStart() (err error) {
 	err = dig.ApiContainer.Invoke(func(migrate *database.Migration) {
 		err = migrate.Migrate(
 			&entity.User{},
+			&entity.Doc{},
+			&entity.File{},
 		)
 		if err != nil {
 			panic(err)
