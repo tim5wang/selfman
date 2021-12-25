@@ -8,20 +8,46 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/tim5wang/selfman/common/util"
 )
 
 type fileRender struct {
-	data        []byte
-	contentType string
+	file     fs.File
+	data     []byte
+	fileName string
 }
 
 func (r *fileRender) Render(w http.ResponseWriter) error {
-	_, err := w.Write(r.data)
+	r.WriteContentType(w)
+	data := r.getData()
+	_, err := w.Write(data)
 	return err
 }
 
+func (r *fileRender) getData() []byte {
+	if r.data != nil {
+		return r.data
+	}
+	data, err := ioutil.ReadAll(r.file)
+	if err != nil {
+		return []byte{}
+	}
+	r.data = data
+	return r.data
+}
+
+func (r *fileRender) getHeader() string {
+	info, _ := r.file.Stat()
+	suffix := path.Ext(info.Name())
+	header := util.GetFileHeader(suffix, r.getData())
+	if header == "" {
+		header = "*/*; charset=utf-8"
+	}
+	return header
+}
+
 func (r *fileRender) WriteContentType(w http.ResponseWriter) {
-	//w.Header().Set("content-type", r.contentType)
+	w.Header().Set("Content-Type", r.getHeader())
 }
 
 func loadFile(prePath, fileName string, fSys fs.FS) (file fs.File, err error) {
@@ -56,7 +82,6 @@ func isFile(file fs.File) bool {
 }
 
 func FileServer(fileSystem fs.FS, prePath, prefix string, excludes ...string) gin.HandlerFunc {
-	notFoundPage, _ := fileSystem.Open(path.Join(prePath, "404.html"))
 	return func(ctx *gin.Context) {
 		// 排除
 		if ctx.Request.Method != http.MethodGet {
@@ -82,20 +107,9 @@ func FileServer(fileSystem fs.FS, prePath, prefix string, excludes ...string) gi
 		}
 		filePath := strings.TrimLeft(urlPath, prefix)
 
-		file, err := loadFile(prePath, filePath, fileSystem)
-		if err != nil {
-			file = notFoundPage
-			if file == nil {
-				return
-			}
-		}
-		data, err := ioutil.ReadAll(file)
-		if err != nil {
-			return
-		}
-		//ctx.Writer.Write(data)
-		//ctx.Writer.Flush()
-		ctx.Render(http.StatusOK, &fileRender{data: data, contentType: "text/html"})
+		file, _ := loadFile(prePath, filePath, fileSystem)
+		ctx.Render(http.StatusOK, &fileRender{file: file})
+		ctx.Writer.Flush()
 		ctx.Abort()
 	}
 }
