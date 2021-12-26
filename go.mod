@@ -3,6 +3,7 @@ module github.com/tim5wang/selfman
 go 1.16
 
 require (
+	github.com/casbin/casbin/v2 v2.40.6
 	github.com/codegangsta/inject v0.0.0-20150114235600-33e0aa1cb7c0 // indirect
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-playground/validator/v10 v10.9.0 // indirect

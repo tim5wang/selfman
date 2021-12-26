@@ -142,4 +142,5 @@ var contentType = map[string]string{
 	"ice":     "x-conference/x-cooltalk",
 	"md":      "text/plain; charset=utf-8",
 	"json":    "application/json; charset=utf-8",
+	"svg":     "image/svg+xml",
 }

@@ -99,6 +99,12 @@ func GetFileType(fSrc []byte) string {
 }
 
 func GetFileHeader(fileSuffix string, fSrc []byte) string {
+	fileSuffix = strings.TrimLeft(fileSuffix, ".")
+	fileSuffix = strings.ToLower(fileSuffix)
+	cType, ok := contentType[fileSuffix]
+	if ok {
+		return cType
+	}
 	fType := GetFileType(fSrc)
 	if fType != "" {
 		content, ok := contentType[fType]
@@ -106,7 +112,5 @@ func GetFileHeader(fileSuffix string, fSrc []byte) string {
 			return content
 		}
 	}
-	fileSuffix = strings.TrimLeft(fileSuffix, ".")
-	fileSuffix = strings.ToLower(fileSuffix)
-	return contentType[fileSuffix]
+	return ""
 }

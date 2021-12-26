@@ -40,7 +40,7 @@ func (r *router) Group(relativePath string, middlewares ...gin.HandlerFunc) Rout
 func (r *router) Handle(method, path string, handler Handler, middlewares ...gin.HandlerFunc) {
 	chain := make([]gin.HandlerFunc, 0)
 	chain = append(chain, middlewares...)
-	chain = append(chain, r.wraphandler(handler))
+	chain = append(chain, r.wrapHandler(handler))
 	r.rg.Handle(method, path, chain...)
 }
 func (r *router) GET(path string, handler Handler, middlewares ...gin.HandlerFunc) {
@@ -64,7 +64,7 @@ func (r *router) OPTIONS(path string, handler Handler, middlewares ...gin.Handle
 func (r *router) HEAD(path string, handler Handler, middlewares ...gin.HandlerFunc) {
 	r.Handle("HEAD", path, handler, middlewares...)
 }
-func (r *router) wraphandler(f Handler) gin.HandlerFunc {
+func (r *router) wrapHandler(f Handler) gin.HandlerFunc {
 	return convertHandler(f)
 }
 func newReqInstance(t reflect.Type) interface{} {

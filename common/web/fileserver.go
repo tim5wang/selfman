@@ -60,14 +60,6 @@ func loadFile(prePath, fileName string, fSys fs.FS) (file fs.File, err error) {
 	if err == nil && isFile(file) {
 		return
 	}
-	file, err = fSys.Open(path.Join(prePath, fileName, "README.md"))
-	if err == nil && isFile(file) {
-		return
-	}
-	file, err = fSys.Open(path.Join(prePath, fileName, "INDEX.md"))
-	if err == nil && isFile(file) {
-		return
-	}
 	file, err = fSys.Open(path.Join(prePath, "index.html"))
 	if err == nil && isFile(file) {
 		return
@@ -108,6 +100,7 @@ func FileServer(fileSystem fs.FS, prePath, prefix string, excludes ...string) gi
 		filePath := strings.TrimLeft(urlPath, prefix)
 
 		file, _ := loadFile(prePath, filePath, fileSystem)
+
 		ctx.Render(http.StatusOK, &fileRender{file: file})
 		ctx.Writer.Flush()
 		ctx.Abort()
