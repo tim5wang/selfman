@@ -37,6 +37,8 @@ func init() {
 	{ // controller
 		err = ApiContainer.Provide(controller.NewUserModule, web.ModuleGroup)
 		err = ApiContainer.Provide(controller.NewDocModule, web.ModuleGroup)
+		err = ApiContainer.Provide(controller.NewImageModule, web.ModuleGroup)
+
 	}
 	{ // common
 		err = ApiContainer.Provide(NewApiConfig)

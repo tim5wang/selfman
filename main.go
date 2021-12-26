@@ -58,6 +58,7 @@ func main() {
 		middleware.ConsoleLog,
 		web.EmbedServer(embedFS, "static/", "/s/"),
 		web.StaticServer(config.GetString("gin.static.path"), "/", "/v1/api"),
+		web.StaticServer(config.GetString("upload.image.dir"), config.GetString("upload.image.path")),
 		middleware.APIDoc,
 	)
 

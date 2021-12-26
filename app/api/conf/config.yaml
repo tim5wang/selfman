@@ -14,3 +14,7 @@ gin:
   static:
     path: static
     ftp: true
+upload:
+  image:
+    dir: upload/image
+    path: s/img/
