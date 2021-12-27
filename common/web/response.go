@@ -18,7 +18,7 @@ type Response struct {
 	Data interface{} `json:"data,omitempty"`
 }
 
-func Success(ctx *gin.Context, data ...interface{}) {
+func Success(ctx *gin.Context, data interface{}) {
 	ctx.AbortWithStatusJSON(http.StatusOK, &Response{
 		Code: StatusOK,
 		Msg:  "",
@@ -46,5 +46,7 @@ func GeneralResponse(ctx *gin.Context, err error, data ...interface{}) {
 		Error(ctx, err)
 		return
 	}
-	Success(ctx, data)
+	if len(data) > 0 {
+		Success(ctx, data[0])
+	}
 }

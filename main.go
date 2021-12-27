@@ -56,8 +56,8 @@ func main() {
 	s := gin.New()
 	s.Use(
 		middleware.ConsoleLog,
-		web.EmbedServer(embedFS, "static/", "/s/"),
-		web.StaticServer(config.GetString("gin.static.path"), "/", "/v1/api"),
+		web.EmbedServer(embedFS, "static/", "/s/", "/s/img"),
+		web.StaticServer(config.GetString("gin.static.path"), "/", "/v1/api", "/s/"),
 		web.StaticServer(config.GetString("upload.image.dir"), config.GetString("upload.image.path")),
 		middleware.APIDoc,
 	)

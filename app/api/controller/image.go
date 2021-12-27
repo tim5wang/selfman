@@ -44,7 +44,7 @@ func (m *ImageModule) Upload(ctx *gin.Context, req *UploadImageReq) {
 		SuccessMap: make(map[string]string),
 	}
 	for _, file := range req.FileList {
-		dst, err := os.Create(path.Join(m.conf.GetString("upload.image"), file.Filename))
+		dst, err := os.Create(path.Join(m.conf.GetString("upload.image.dir"), file.Filename))
 		if err != nil {
 			rsp.ErrorFiles = append(rsp.ErrorFiles, file.Filename)
 			continue

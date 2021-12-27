@@ -99,8 +99,11 @@ func FileServer(fileSystem fs.FS, prePath, prefix string, excludes ...string) gi
 		}
 		filePath := strings.TrimLeft(urlPath, prefix)
 
-		file, _ := loadFile(prePath, filePath, fileSystem)
-
+		file, err := loadFile(prePath, filePath, fileSystem)
+		if err != nil {
+			ctx.Abort()
+			return
+		}
 		ctx.Render(http.StatusOK, &fileRender{file: file})
 		ctx.Writer.Flush()
 		ctx.Abort()

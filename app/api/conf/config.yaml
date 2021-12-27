@@ -16,5 +16,5 @@ gin:
     ftp: true
 upload:
   image:
-    dir: upload/image
-    path: s/img/
+    dir: upload/image/
+    path: /s/img/
