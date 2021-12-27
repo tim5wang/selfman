@@ -8,7 +8,6 @@
 <div id="vditor">
 
 </div>
-<!-- ⚠️生产环境请指定版本号，如 https://cdn.jsdelivr.net/npm/vditor@x.x.x/dist... -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vditor/dist/index.css" />
 <script src="https://cdn.jsdelivr.net/npm/vditor/dist/index.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
@@ -21,7 +20,16 @@
         counter: {
             enable: true
         },
-        height: window.innerHeight / 2,
+        comment: {
+            enable: true,
+            add(id, text, commentsData) {
+                // 新增评论
+            },
+            adjustTop(commentsData) {
+                // 更新评论
+            }
+        },
+        height: window.innerHeight,
         toolbar: [
             'emoji',
             'link',
@@ -39,7 +47,16 @@
             },
         ],
         upload: {
-            url: '/v1/api/file/upload'
+            url: '/v1/api/file/upload',
+            linkToImgUrl: '/v1/api/file/clone'
+        },
+        input(msg){
+            // 输入时触发
+            console.log(msg)
+        },
+        blur(msg) {
+            // 失去焦点时触发
+            console.log(msg)
         }
     })
 </script>
