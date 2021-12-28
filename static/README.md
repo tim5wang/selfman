@@ -18,6 +18,9 @@
 - 自己实现云盘 fs.FS
 - https://github.com/philippgille/gokv
 - https://github.com/go-openapi
+- https://github.com/IM-Tools/go-im
+
+
 
 - **Json-Schema**
 - https://goswagger.io/tutorial/custom-server.html

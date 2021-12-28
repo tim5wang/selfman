@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/tim5wang/selfman/common/configservice"
 	"github.com/tim5wang/selfman/common/web"
@@ -19,10 +17,22 @@ func NewDocModule(config *configservice.ConfigService) web.Module {
 func (m *DocModule) Init(r web.Router) {
 	g := r.Group("api/doc")
 	{
-		g.GET("/config", m.GetConfig)
+		g.GET("/:doc_id", m.GetDoc)
+		g.POST("/save", m.SaveDoc)
 	}
 }
 
-func (m *DocModule) GetConfig(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, m.config.GetString("gorm.path"))
+type GetDocReq struct {
+	DocID string `json:"doc_id" uri:"doc_id"`
+}
+type DocReqRsp struct {
+	DocID string `json:"doc_id"`
+}
+
+func (m *DocModule) GetDoc(ctx *gin.Context, req *GetUserReq) {
+
+}
+
+func (m *DocModule) SaveDoc(ctx *gin.Context, req *GetUserReq) {
+
 }
