@@ -10,6 +10,7 @@ import (
 	"github.com/tim5wang/selfman/common/web"
 	"github.com/tim5wang/selfman/dao/docdao"
 	"github.com/tim5wang/selfman/dao/filedao"
+	"github.com/tim5wang/selfman/dao/genid"
 	"github.com/tim5wang/selfman/dao/userdao"
 	"github.com/tim5wang/selfman/service/docservice"
 	"github.com/tim5wang/selfman/service/fileservice"
@@ -56,6 +57,7 @@ func init() {
 		err = ApiContainer.Provide(userdao.NewUserDao)
 		err = ApiContainer.Provide(filedao.NewFileDao)
 		err = ApiContainer.Provide(docdao.NewDocDao)
+		err = ApiContainer.Provide(genid.NewIDDao)
 	}
 }
 

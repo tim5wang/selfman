@@ -2,20 +2,24 @@ package docservice
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/tim5wang/selfman/dao/docdao"
+	"github.com/tim5wang/selfman/dao/genid"
 	"github.com/tim5wang/selfman/model"
 	"gorm.io/gorm"
 )
 
 type DocService struct {
 	docDao *docdao.DocDao
+	idGen  *genid.IDDao
 }
 
-func NewDocService(docDao *docdao.DocDao) *DocService {
+func NewDocService(docDao *docdao.DocDao, idGen *genid.IDDao) *DocService {
 	return &DocService{
 		docDao: docDao,
+		idGen:  idGen,
 	}
 }
 
@@ -34,6 +38,12 @@ func (s *DocService) SaveDoc(doc *model.Doc) (error, *model.Doc) {
 	u.CreateTime = time.Now().Unix()
 	u.UpdateTime = time.Now().Unix()
 	if doc.DocID == "" {
+		id, err := s.idGen.GenID(u)
+		if err != nil {
+			err = fmt.Errorf("gen id error %w", err)
+			return err, nil
+		}
+		u.DocID = id
 		err, res := s.docDao.Create(u)
 		if err != nil {
 			return err, nil
@@ -55,6 +65,11 @@ func (s *DocService) SaveDoc(doc *model.Doc) (error, *model.Doc) {
 		}
 		doc.FromEntity(od)
 	} else {
+		u.DocID, err = s.idGen.GenID(u)
+		if err != nil {
+			err = fmt.Errorf("gen id error %w", err)
+			return err, nil
+		}
 		e, res := s.docDao.Create(u)
 		if e != nil {
 			return e, doc

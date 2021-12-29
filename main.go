@@ -37,6 +37,7 @@ func beforeStart() (err error) {
 			&entity.User{},
 			&entity.Doc{},
 			&entity.File{},
+			&entity.ID{},
 		)
 		if err != nil {
 			panic(err)
@@ -59,7 +60,7 @@ func main() {
 		web.EmbedServer(embedFS, "static/", "/s/", "/s/img"),
 		web.StaticServer(config.GetString("gin.static.path"), "/", "/v1/api", "/s/"),
 		web.StaticServer(config.GetString("upload.image.dir"), config.GetString("upload.image.path")),
-		middleware.APIDoc,
+		//middleware.APIDoc,
 	)
 
 	r := web.NewRouter("/v1", s)

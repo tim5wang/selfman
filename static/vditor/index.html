@@ -1,67 +1,139 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8"/>
+  <head>
+    <meta charset="utf-8" />
     <title>Marked in the browser</title>
-</head>
-<body>
-<div id="vditor">
-
-</div>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vditor/dist/index.css" />
-<script src="https://cdn.jsdelivr.net/npm/vditor/dist/index.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
-<script src="./src/jquery.min.js"></script>
-<script src="./src/file.js"></script>
-<script>
-
-    new Vditor('vditor', {
-        toolbarConfig: {
-            pin: true
-        },
-        counter: {
-            enable: true
-        },
-        comment: {
+  </head>
+  <body>
+    <div id="vditor"></div>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/vditor/dist/index.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/vditor/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="./src/jquery.min.js"></script>
+    <script src="./src/file.js"></script>
+    <script>
+      const cacheKey = "current_doc_id"
+      var doc = {
+          content: '',
+      };
+      var getCacheKey = function() {
+        if (id = localStorage.getItem(cacheKey)) {
+            return id
+        }
+      }
+      var setCacheKey = function(key) {
+        localStorage.setItem(cacheKey, key)
+      }
+      var removeCacheKey = function() {
+          localStorage.removeItem(cacheKey)
+      }
+      var editor
+      var params = getParams();
+      if(params["doc"]) {
+        setCacheKey(params["doc"])
+      }else{
+        params["doc"] = getCacheKey()
+      }
+      var vdt = function (data) {
+          var useCache = true
+          if(data) {
+            doc['content'] = data
+            useCache = false
+          }
+          editor = new Vditor("vditor", {
+          value:  doc['content'],
+          toolbarConfig: {
+            pin: true,
+          },
+          counter: {
+            enable: true,
+          },
+          cache: {
+            d: doc.doc_id,
+            enable: useCache,
+          },
+          comment: {
             enable: true,
             add(id, text, commentsData) {
-                // 新增评论
+              // 新增评论
             },
             adjustTop(commentsData) {
-                // 更新评论
-            }
-        },
-        height: window.innerHeight,
-        toolbar: [
-            'emoji',
-            'link',
-            'upload',
-            'edit-mode',
-            {
-                name: 'more',
-                toolbar: [
-                    'insert-after',
-                    'fullscreen',
-                    'preview',
-                    'info',
-                    'help',
-                ],
+              // 更新评论
             },
-        ],
-        upload: {
-            url: '/v1/api/file/upload',
-            linkToImgUrl: '/v1/api/file/clone'
-        },
-        input(msg){
+          },
+          height: window.innerHeight,
+          toolbar: [
+            "emoji",
+            "link",
+            "upload",
+            "edit-mode",
+            {
+              name: "more",
+              toolbar: [
+                "insert-after",
+                "fullscreen",
+                "preview",
+                "info",
+                "help",
+              ],
+            },
+          ],
+          upload: {
+            url: "/v1/api/file/upload",
+            linkToImgUrl: "/v1/api/file/clone",
+          },
+          input(msg) {
             // 输入时触发
-            console.log(msg)
-        },
-        blur(msg) {
+            console.log(msg);
+          },
+          blur(content) {
             // 失去焦点时触发
-            console.log(msg)
-        }
-    })
-</script>
-</body>
+            console.log(content);
+            doc.content = content;
+            $.ajax({
+              data: JSON.stringify(doc),
+              url: "/v1/api/doc/save",
+              type: "post",
+              dataType: "json",
+              contentType: "application/json; charset=utf-8",
+              success(data) {
+                console.log(data);
+                if (data.code === 0) {
+                    doc = data.data
+                    setCacheKey(doc["doc_id"])
+                }
+              },
+              error(data) {
+                console.log(data);
+                editor.enableCache()
+              },
+            });
+          },
+        });
+      };
+      
+      if (params["doc"]) {
+        var docId = params["doc"];
+        $.get(
+          "/v1/api/doc/" + docId,
+          function (data) {
+            if (data && data.code === 0) {
+                doc = data.data;
+                vdt(data.data.content)
+                setCacheKey(doc["doc_id"])
+            }else{
+                removeCacheKey()
+                vdt()
+            }
+          },
+          "json"
+        )
+      }else{
+        vdt()
+      }
+    </script>
+  </body>
 </html>
-
