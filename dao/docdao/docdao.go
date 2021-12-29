@@ -18,10 +18,11 @@ func NewDocDao(db *gorm.DB) *DocDao {
 	}
 }
 
-func (d *DocDao) Create(doc *entity.Doc, tx ...*gorm.DB) (err error) {
+func (d *DocDao) Create(doc *entity.Doc, tx ...*gorm.DB) (err error, r *entity.Doc) {
 	tab := database.GetTable(d.db, d.Tab, tx...)
 	res := tab.Create(doc)
 	err = res.Error
+	r = doc
 	return
 }
 func (d *DocDao) Update(doc *entity.Doc, tx ...*gorm.DB) (err error) {
