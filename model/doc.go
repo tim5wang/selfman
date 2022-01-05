@@ -13,3 +13,11 @@ func (u *Doc) ToEntity() *entity.Doc {
 func (u *Doc) FromEntity(doc *entity.Doc) {
 	u.Doc = *doc
 }
+
+type DicListReq struct {
+	ByPage
+}
+type DicListRsp struct {
+	ByPage
+	List []*Doc
+}

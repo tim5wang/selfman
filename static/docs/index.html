@@ -1,0 +1,39 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/themes/vue.css" />
+</head>
+<body>
+<div id="app"></div>
+<script>
+    let instance = null;
+    function render(props) {
+        window.$docsify = {
+            //...
+        }
+    }
+    if (!window.__POWERED_BY_QIANKUN__) { // 如果是独立运行，则手动调用渲染
+        render();
+    }
+    if(window.__POWERED_BY_QIANKUN__){ // 如果是qiankun使用到了，则会动态注入路径
+        __webpack_public_path__ = window.__INJECTED_PUBLIC_PATH_BY_QIANKUN__;
+    }
+    // 根据 qiankun 的协议需要导出 bootstrap/mount/unmount
+    export async function bootstrap(props) {
+
+    }
+    export async function mount(props) {
+        render(props);
+    }
+    export async function unmount(props) { // 卸载时销毁应用
+        instance.$destroy();
+    }
+</script>
+<script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+</body>
+</html>

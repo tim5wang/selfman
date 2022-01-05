@@ -71,7 +71,7 @@ func main() {
 	timer := time.NewTimer(1 * time.Second)
 	go func() {
 		<-timer.C
-		_ = util.Open("http://localhost" + config.GetString("port"))
+		_ = util.Open("http://localhost" + config.GetString("port") + config.GetString("home"))
 	}()
 	err = s.Run(config.GetString("port"))
 	if err != nil {

@@ -41,3 +41,8 @@ func (m *DocModule) SaveDoc(ctx *gin.Context, req *DocReqRsp) {
 	err, doc := m.docService.SaveDoc(&req.Doc)
 	web.GeneralResponse(ctx, err, doc)
 }
+
+func (m *DocModule) DocList(ctx *gin.Context, req *model.DicListReq) {
+	err, data := m.docService.DocList(req)
+	web.GeneralResponse(ctx, err, data)
+}

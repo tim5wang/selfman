@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/tim5wang/selfman/dao/docdao"
+	"github.com/tim5wang/selfman/dao/entity"
 	"github.com/tim5wang/selfman/dao/genid"
 	"github.com/tim5wang/selfman/model"
 	"gorm.io/gorm"
@@ -77,4 +78,20 @@ func (s *DocService) SaveDoc(doc *model.Doc) (error, *model.Doc) {
 		doc.FromEntity(res)
 	}
 	return nil, doc
+}
+
+func (s *DocService) DocList(req *model.DicListReq) (err error, rsp *model.DicListRsp) {
+	rsp = &model.DicListRsp{}
+	var list []*entity.Doc
+	err, rsp.Total, list = s.docDao.GetDocList(req.PageNum, req.PageSize, req.KeyWord)
+	if err != nil {
+		return
+	}
+	rsp.List = make([]*model.Doc, 0)
+	for _, d := range list {
+		doc := &model.Doc{}
+		doc.FromEntity(d)
+		rsp.List = append(rsp.List, doc)
+	}
+	return
 }

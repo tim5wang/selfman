@@ -15,3 +15,10 @@ var getParams = function () {
     return params
 }
 
+function getDocByID(docID) {
+
+}
+
+function saveDoc(doc) {
+
+}

@@ -37,3 +37,18 @@ func (d *DocDao) GetByDocID(docID string, tx ...*gorm.DB) (err error, doc *entit
 	err = tab.Where("doc_id = ?", docID).First(&doc).Error
 	return
 }
+
+func (d *DocDao) GetDocList(page, size int, keyword string, tx ...*gorm.DB) (err error, total int64, docs []*entity.Doc) {
+	tab := database.GetTable(d.db, d.Tab, tx...)
+	if keyword != "" {
+		like := "%s" + keyword + "%s"
+		tab = tab.Where("title like ? OR content like ?", like, like)
+	}
+	err = tab.Count(&total).Error
+	if page != 0 && size != 0 {
+		err = tab.Offset((page - 1) * size).Limit(size).Find(&docs).Error
+	} else {
+		err = tab.Find(&docs).Error
+	}
+	return
+}
