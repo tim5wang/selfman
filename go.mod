@@ -13,6 +13,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/robfig/cron v1.2.0
 	github.com/spf13/viper v1.10.1
 	github.com/ugorji/go v1.2.6 // indirect
 	go.uber.org/dig v1.13.0
